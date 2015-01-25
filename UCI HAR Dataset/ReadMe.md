@@ -1,6 +1,3 @@
-# CourseraGettingData
-Project repository for Coursera Getting and Cleaning Data online course
-
 ** Analysis Steps to read data **
 1. Read in Feature Names text files.
 2. Select names that contain the string mean or stdev.
@@ -22,5 +19,3 @@ Project repository for Coursera Getting and Cleaning Data online course
 1. create directory for data set
 2. cd to data dir
 3. run script file
-
-
