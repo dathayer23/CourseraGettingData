@@ -1,0 +1,108 @@
+---
+title: "UCI-HAR Data Cleansing"
+author: "David Thayer"
+date: "Thursday, January 22, 2015"
+output: html_document
+---
+```{r}
+require (stringr)
+
+transformLineToVector <- function (l) {
+  sapply((str_split(l, "\\s+")), as.numeric)
+}
+
+readDataFile <- function(filename, category)  {
+  name <- str_c(filename, category)
+  print(str_c("Loading file ", name))
+  con <- file(name, open = "r")
+  data <- readLines(con)
+  
+  output <- sapply(data, function (l) { 
+    res <- transformLineToVector(l)
+    res[!is.na(res)]
+  } )
+  
+  names(output) <- NULL
+  dimnames(output) <- NULL
+  close(con)
+  m <- matrix(output, dim(output))
+  rownames(m) <- NULL
+  m
+}
+
+createXYZ <- function(mx,my,mz) {
+    xyz <- function(x,y,z) { 
+      c(X = x, Y = y, Z = z) 
+    }
+    mxyz <- mapply(xyz, mx, my, mz)
+    dim(mxyz) <- c(nrow(mx), ncol(mx), 3)
+    mxyz
+}
+
+```
+
+```{r, cache=TRUE}
+
+XTest <- readDataFile(".\\test\\X_Test",".txt")
+YTest <- readDataFile(".\\test\\Y_Test",".txt")
+XTrain <- readDataFile(".\\train\\X_Train",".txt")
+YTrain <- readDataFile(".\\train\\Y_Train",".txt")
+
+```
+Read data files
+
+```{r, cache=TRUE}
+
+category <- "test.txt"
+path <- ".\\test\\Inertial Signals\\"
+
+category <- "test.txt"
+baxTst <- readDataFile( str_c(path,"body_acc_x_"),  category)
+bayTst <- readDataFile( str_c(path,"body_acc_y_"),  category)
+bazTst <- readDataFile( str_c(path,"body_acc_z_"),  category)
+
+bgxTst <- readDataFile( str_c(path,"body_gyro_x_"),  category)
+bgyTst <- readDataFile( str_c(path,"body_gyro_y_"),  category)
+bgzTst <- readDataFile( str_c(path,"body_gyro_z_"),  category)
+
+taxTst <- readDataFile( str_c(path,"total_acc_x_"),  category)
+tayTst <- readDataFile( str_c(path,"total_acc_y_"),  category)
+tazTst <- readDataFile( str_c(path,"total_acc_z_"),  category)
+
+
+baTst <- createXYZ(baxTst, bayTst, bazTst)
+bgTst <- createXYZ(bgxTst, bgyTst, bgzTst)
+taTst <- createXYZ(taxTst, tayTst, tazTst)
+
+
+category <- "train.txt"
+path <- ".\\train\\Inertial Signals\\"
+
+baxTrn <- readDataFile( str_c(path,"body_acc_x_"),  category)
+bayTrn <- readDataFile( str_c(path,"body_acc_y_"),  category)
+bazTrn <- readDataFile( str_c(path,"body_acc_z_"),  category)
+
+bgxTrn <- readDataFile( str_c(path,"body_gyro_x_"),  category)
+bgyTrn <- readDataFile( str_c(path,"body_gyro_y_"),  category)
+bgzTrn <- readDataFile( str_c(path,"body_gyro_z_"),  category)
+
+taxTrn <- readDataFile( str_c(path,"total_acc_x_"),  category)
+tayTrn <- readDataFile( str_c(path,"total_acc_y_"),  category)
+tazTrn <- readDataFile( str_c(path,"total_acc_z_"),  category)
+
+baTrn <- createXYZ(baxTrn, bayTrn, bazTrn)
+bgTrn <- createXYZ(bgxTrn, bgyTrn, bgzTrn)
+taTrn <- createXYZ(taxTrn, tayTrn, tazTrn)
+
+testData <- data.frame(BodyAccelerometer = baTst, BodyGyro = bgTst, TotalAccelerometer = taTst, stringsAsFactors = FALSE)
+trainData <- data.frame(BodyAccelerometer = baTrn, BodyGyro = bgTrn, TotalAccelerometer = taTrn, stringsAsFactors = FALSE)
+
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+## plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
